@@ -21,7 +21,7 @@ You will need:
 * An AWS account for deploying the required AWS resources
 * An [EC2 Key pair](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/create-key-pairs.html) created in the AWS account and region in which you want to deploy
 * The [AWS CLI](https://aws.amazon.com/cli/) installed and configured with valid AWS credentials. You will need near Admin-level permissions to deploy all the resources defined in this project.
-* [Docker](https://docs.docker.com/desktop/windows/install/) installed
+* [Docker](https://docs.docker.com/desktop/windows/install/) installed and running in _Windows containers_ mode
 * Python3 installed
 * The [AWS CDK v2](https://docs.aws.amazon.com/cdk/v2/guide/home.html) installed and configured
 * The source code for a working O3DE multiplayer project, such as [O3DE MultiplayerSample](https://github.com/o3de/o3de-multiplayersample)
@@ -82,6 +82,8 @@ If your O3DE multiplayer project is using the [AWS Metrics gem](https://www.o3de
 * _"aws_metrics_cdk_path"_: the path on disc where the AWS Metrics gem CDK project is located
 * _"aws_metrics_policy_export_name"_: the AWS CloudFormation export name of the IAM user policy needed to call the metrics service. This policy will be added to your test server's instance role to grant it permission to invoke the metrics REST API. See the [AWS Metrics gem docs](https://www.o3de.org/docs/user-guide/gems/reference/aws/aws-metrics/using/#cloudformation-stack-output) for more information.
 
+Please note that the Amazon Kinesis SQL analytics application created by the AWS Metrics gem needs to be activated before it will start ingesting metrics. To ensure metrics collection is working as soon as your server is available, activate it prior to the [`deploy`](#deploy-the-remote-server-and-clients) step by navigating to the Amazon Kinesis console, finding the application named after your project under _Analytics applications / SQL applications_ and clicking `Run` at the top of the application page.
+
 ## Running Multiplayer Test Scaler
 Open a command terminal in the root directory of this project for executing commands.
 
@@ -128,7 +130,7 @@ After you're done testing your multiplayer project, run `python main.py clear --
 
 #### Arguments
 - _config-file_: Path to the config file to use. If no config file is specified, the tool will search for an existing config file called `multiplayer_test_scaler_config.json` under the execution directory.
--  _target_: Target to clear - client, server, all or AWSMetrics. If no target is specified, all AWS resources will be destroyed.
+-  _target_: (Optional) Target to clear - client, server, all or AWSMetrics. If no target is specified, all AWS resources will be destroyed.
 - _platform_: Platform of the project package. Currently, only supports `Windows`.
 
 ## Running unit tests
