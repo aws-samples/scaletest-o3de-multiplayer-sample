@@ -24,6 +24,7 @@ You will need:
 * [Docker](https://docs.docker.com/desktop/windows/install/) installed
 * Python3 installed
 * The [AWS CDK v2](https://docs.aws.amazon.com/cdk/v2/guide/home.html) installed and configured
+* The source code for a working O3DE multiplayer project, such as [O3DE MultiplayerSample](https://github.com/o3de/o3de-multiplayersample)
 
 ### Create a Virtualenv
 To manually create a virtualenv, from the root of this project run:
@@ -67,7 +68,7 @@ Update the available configuration keys as required. A config file used to build
   "aws_account_id": "123456789012",                      // AWS account to deploy to
   "aws_region": "us-east-1",                             // AWS region to deploy to
   "ec2_key_pair": "my-keypair",                          // name of the EC2 keypair to use in the configured AWS region
-  "local_reference_machine_cidr": "1.1.1.1/32",          // (optional) CIDR group for allowed external connections
+  "local_reference_machine_cidr": "<your-IP-address>/32",          // (optional) CIDR group for allowed external connections
   "aws_metrics_cdk_path": "C:\\github\\o3de-multiplayersample\\Gem\\MetricsCDK",  // (optional) metrics project
   "aws_metrics_policy_export_name": "MULTIPLAYERSAMPLE-AWSMetrics:UserPolicy"     // (optional) metrics IAM policy
 }
