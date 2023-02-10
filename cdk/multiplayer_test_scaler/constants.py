@@ -20,9 +20,9 @@ RDP_CONNECTION_PORT = 3389
 DEFAULT_SERVER_PRIVATE_IP = '10.0.0.4'
 SERVER_LAUNCH_SCRIPT = '<script>\n' \
                        '@echo off\n' \
-                       'netsh advfirewall firewall add rule name="O3DE_server" dir=in protocol=UDP localport={server_port} action=allow program="C:/o3de/{project_name}.ServerLauncher.exe" enable=yes\n' \
+                       'netsh advfirewall firewall add rule name="O3DE_server" dir=in protocol=UDP localport={server_port} action=allow program="C:\o3de\{project_name}.ServerLauncher.exe" enable=yes\n' \
                        'cd C:/o3de\n' \
-                       '{project_name}.ServerLauncher --engine-path=C:/o3de --project-path=C:/o3de --project-cache-path=C:/o3de/Cache ' \
+                       '{project_name}.ServerLauncher --engine-path=C:\o3de --project-path=C:\o3de --project-cache-path=C:\o3de\Cache ' \
                        '--regset="/Amazon/AWSCore/AllowAWSMetadataCredentials=true" ' \
                        '--console-command-file=C:/o3de/Cache/pc/launch_server.cfg --rhi=null -bg_ConnectToAssetProcessor=0 \n' \
                        '</script>'

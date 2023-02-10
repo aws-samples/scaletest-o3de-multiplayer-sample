@@ -24,6 +24,7 @@ You will need:
 * [Docker](https://docs.docker.com/desktop/windows/install/) installed
 * Python3 installed
 * The [AWS CDK v2](https://docs.aws.amazon.com/cdk/v2/guide/home.html) installed and configured
+* The source code for a working O3DE multiplayer project, such as [O3DE MultiplayerSample](https://github.com/o3de/o3de-multiplayersample)
 
 ### Create a Virtualenv
 To manually create a virtualenv, from the root of this project run:
@@ -67,7 +68,7 @@ Update the available configuration keys as required. A config file used to build
   "aws_account_id": "123456789012",                      // AWS account to deploy to
   "aws_region": "us-east-1",                             // AWS region to deploy to
   "ec2_key_pair": "my-keypair",                          // name of the EC2 keypair to use in the configured AWS region
-  "local_reference_machine_cidr": "1.1.1.1/32",          // (optional) CIDR group for allowed external connections
+  "local_reference_machine_cidr": "<your-public-IP-address>/32", // (optional) CIDR group for allowed external connections
   "aws_metrics_cdk_path": "C:\\github\\o3de-multiplayersample\\Gem\\MetricsCDK",  // (optional) metrics project
   "aws_metrics_policy_export_name": "MULTIPLAYERSAMPLE-AWSMetrics:UserPolicy"     // (optional) metrics IAM policy
 }
@@ -109,7 +110,7 @@ Run `python main.py deploy --target [target_name] --config-file [config_file_nam
 
 #### Arguments
 - _config-file_: Path to the config file to use. If no config file is specified, the tool will search for an existing config file called `multiplayer_test_scaler_config.json` under the execution directory.
-- _target_: Target to deploy - client, server, all or AWSMetrics. The server and client targets will be deployed if no target is specified. Note that the AWSMetrics target is deployed during the `build` step so its resources can be configured in the packaged project. See the _[Using the AWS Metrics gem](#using-the-aws-metrics-gem)_ section for more details.
+- _target_: (Optional) Target to deploy - client, server, all or AWSMetrics. The server and client targets will be deployed if no target is specified. Note that the AWSMetrics target is deployed during the `build` step so its resources can be configured in the packaged project. See the _[Using the AWS Metrics gem](#using-the-aws-metrics-gem)_ section for more details.
 - _platform_: Platform of the project package. Currently, only supports `Windows`.
 
 
