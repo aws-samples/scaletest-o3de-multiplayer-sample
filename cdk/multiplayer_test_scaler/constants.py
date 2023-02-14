@@ -24,7 +24,7 @@ SERVER_LAUNCH_SCRIPT = '<script>\n' \
                        'cd C:/o3de\n' \
                        '{project_name}.ServerLauncher --engine-path=C:\o3de --project-path=C:\o3de --project-cache-path=C:\o3de\Cache ' \
                        '--regset="/Amazon/AWSCore/AllowAWSMetadataCredentials=true" ' \
-                       '--console-command-file=C:/o3de/Cache/pc/launch_server.cfg --rhi=null -bg_ConnectToAssetProcessor=0 \n' \
+                       '--console-command-file=C:/o3de/Cache/pc/launch_server.cfg --rhi=null -NullRenderer -bg_ConnectToAssetProcessor=0 \n' \
                        '</script>'
 SERVER_INSTANCE_CLASS = ec2.InstanceClass.COMPUTE5
 SERVER_INSTANCE_SIZE = ec2.InstanceSize.XLARGE2
