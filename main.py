@@ -73,7 +73,7 @@ if __name__ == '__main__':
         help='Path to the multiplayer project config file. Creates a new config file if none exists'
     )
     parser.add_argument(
-        '-p', '--platform', choices=[PLATFORM_WINDOWS], action='store', default=PLATFORM_WINDOWS,
+        '-p', '--platform', choices=[PLATFORM_WINDOWS], action='store', default=PLATFORM_WINDOWS, type=str.capitalize,
         help='Platform of the project package'
     )
 
