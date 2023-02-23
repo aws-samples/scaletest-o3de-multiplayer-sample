@@ -49,7 +49,7 @@ SCALER_CONFIG_DEFAULT_CLIENT_COUNT = 1
 SCALER_CONFIG_DEFAULT_SERVER_PRIVATE_IP = '10.0.0.4'
 SCALER_CONFIG_DEFAULT_SERVER_PORT = '33450'
 
-# Platform specific constants, respecting the EC2 Image Builder requirement of sentence casing
+# Platform constant, respecting the EC2 Image Builder requirement of sentence casing
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-imagebuilder-component.html
 PLATFORM_WINDOWS = 'Windows'
 WINDOWS_GENERATOR = 'Visual Studio 16'
