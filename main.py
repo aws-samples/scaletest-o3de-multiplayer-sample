@@ -72,6 +72,7 @@ if __name__ == '__main__':
         '-f', '--config-file', action='store', default=SCALER_CONFIG_FILENAME,
         help='Path to the multiplayer project config file. Creates a new config file if none exists'
     )
+    # Capitalizing the platform argument to satisfy the sentence case requirements of EC2 Image Builder
     parser.add_argument(
         '-p', '--platform', choices=[PLATFORM_WINDOWS], action='store', default=PLATFORM_WINDOWS, type=str.capitalize,
         help='Platform of the project package'
