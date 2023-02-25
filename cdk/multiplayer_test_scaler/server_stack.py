@@ -4,7 +4,9 @@
 from aws_cdk import (
     Stack,
     aws_iam as iam,
-    aws_ec2 as ec2
+    aws_ec2 as ec2,
+    aws_s3 as s3,
+    aws_lambda as _lambda,
 )
 import aws_cdk as cdk
 from constructs import Construct
@@ -13,6 +15,7 @@ import os
 
 from .constants import *
 from .custom_image_builder_construct import CustomImageBuilderConstruct
+from .server_artifacts_automation import ServerAutomationConstruct
 
 
 class O3DEServerStack(Stack):
@@ -20,13 +23,15 @@ class O3DEServerStack(Stack):
     Create stack for deploying AWS resources required to run the multiplayer server
     """
     def __init__(self, scope: Construct, construct_id: str, vpc: ec2.Vpc, security_group: ec2.SecurityGroup,
-                 platform: str, project_name: str, image_id: str = '', **kwargs) \
+                 platform: str, project_name: str, artifacts_bucket: s3.Bucket, upload_lambda: _lambda.Function, **kwargs) \
             -> None:
         super().__init__(scope, construct_id, **kwargs)
         self._vpc = vpc
         self._security_group = security_group
         self._platform = platform
         self._project_name = project_name
+        self._artifacts_bucket = artifacts_bucket
+        self._upload_lambda = upload_lambda
 
         self._server_port = self.node.try_get_context('server_port')
         if not self._server_port:
@@ -50,7 +55,16 @@ class O3DEServerStack(Stack):
             self, f'{RESOURCE_ID_COMMON_PREFIX}InstanceRole',
             description='Role to be used by instance for remote connection',
             assumed_by=iam.ServicePrincipal('ec2.amazonaws.com'),
-            path='/executionServiceEC2Role/'
+            path='/executionServiceEC2Role/',
+            inline_policies={'ArtifactUploadPolicy': iam.PolicyDocument(
+                statements=[
+                    iam.PolicyStatement(
+                        effect=iam.Effect.ALLOW,
+                        actions=['s3:PutObject'],
+                        resources=[f'{self._artifacts_bucket.bucket_arn}/*']
+                    )
+                ])
+            }
         )
 
         # Add metrics submission IAM policy, if provided
@@ -66,15 +80,15 @@ class O3DEServerStack(Stack):
             raise RuntimeError('EC2 key pair is required for deploying the Multiplayer Test Scaler. '
                             'Pass the key pair using \'-c key_pair={key_pair_value}\'')
 
-        if not image_id:
-            # No existing Amazon Machine Image (AMI) is provided.
-            # Create one via EC2 Image Builder (https://aws.amazon.com/image-builder/)
-            ami_construct = CustomImageBuilderConstruct(
-                self, f'{RESOURCE_ID_COMMON_PREFIX}CustomImageBuilderConstruct',
-                self._key_pair, self._instance_role, self._platform)
-            image_id = ami_construct.custom_image_id
+        
+        # Create server image via EC2 Image Builder (https://aws.amazon.com/image-builder/)
+        ami_construct = CustomImageBuilderConstruct(
+            self, f'{RESOURCE_ID_COMMON_PREFIX}CustomImageBuilderConstruct',
+            self._key_pair, self._instance_role, self._platform)
+        image_id = ami_construct.custom_image_id
 
         self._launch_server_instance(image_id)
+        self._create_server_upload_automation()
 
     def _add_remote_client_ingress(self, local_cidr: str) -> None:
         """
@@ -144,3 +158,9 @@ class O3DEServerStack(Stack):
             f'{RESOURCE_ID_COMMON_PREFIX}ServerIp',
             description='Public IP address of the server instance',
             value=server_instance.instance_public_ip)
+
+    def _create_server_upload_automation(self):
+        self._upload_automation = ServerAutomationConstruct(
+            self, f'{RESOURCE_ID_COMMON_PREFIX}ServerAutomationConstruct')
+        self._upload_automation.create_file_sync_rule(self._artifacts_bucket.bucket_name)
+        self._upload_automation.create_upload_trigger(self._upload_lambda)

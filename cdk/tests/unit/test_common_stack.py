@@ -75,3 +75,8 @@ def test_common_stack_creation_context_variable_specified_common_resources_creat
             "Name": f'{RESOURCE_ID_COMMON_PREFIX}ClientSubnetIds'
            }
     })
+    template.has_output(f'{RESOURCE_ID_COMMON_PREFIX}ArtifactBucketName', {
+        'Export': {
+            'Name': f'{RESOURCE_ID_COMMON_PREFIX}ArtifactBucketName'
+        }
+    })
