@@ -103,6 +103,13 @@ This command will:
 - _config-file_: Path to the config file to use. If no config file is specified, the tool will search for an existing config file called `multiplayer_test_scaler_config.json` under the execution directory.
 - _platform_: Platform the project will be built for. Currently, only supports `Windows`.
 
+### Create and/or specify an Amazon S3 bucket for your test artifacts
+When deployed, Multiplayer Test Scaler will sync the contents of the `C:/o3de/user/log` and `C:/o3de/user/Metrics` directories on the server to a temporary S3 bucket in your account to ensure they are recoverable in case your server instance becomes unreachable during testing. When the server stack is destroyed, Multiplayer Test Scaler will attempt to upload the contents of this bucket to another (longer lived) S3 bucket in your account for long-term storage. 
+
+By default, an AWS CloudFormation stack output exported under the key **"O3deMetricsUploadBucket"** is looked up in the configured region and used as the destination bucket for the uploaded test artifacts.
+* To create an S3 bucket and specify an exported stack output, see the [AWS CloudFormation documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-exports.html).
+* To change the name of the exported stack output that is looked up, modify the value of the `DEFAULT_DESTINATION_BUCKET_EXPORT_NAME` constant in [multiplayer_test_scaler/constants.py](cdk/multiplayer_test_scaler/constants.py) and [upload_test_artifacts.py](cdk/lambda/upload_test_artifacts/upload_test_artifacts.py).
+
 ### Deploy the remote server and clients
 Run `python main.py deploy --target [target_name] --config-file [config_file_name] --platform [platform_name]` to set up:
 * A VPC and security group for the remote server and clients to be deployed into

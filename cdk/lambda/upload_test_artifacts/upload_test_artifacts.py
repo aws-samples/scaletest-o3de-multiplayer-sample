@@ -6,7 +6,7 @@ import boto3
 CFN_STACK_TAG_KEY = 'aws:cloudformation:stack-id'
 DELETE_STATUS = 'DELETE_IN_PROGRESS'
 SOURCE_BUCKET_EXPORT_NAME = 'MultiplayerTestScalerArtifactBucketName'
-DESTINATION_BUCKET_EXPORT_NAME = 'O3deMetricsUploadBucket'
+DEFAULT_DESTINATION_BUCKET_EXPORT_NAME = 'O3deMetricsUploadBucket'
 
 def handler(event, context):
     stack_id = event['resources'][0]
@@ -29,7 +29,7 @@ def handler(event, context):
         if export['Name'] == SOURCE_BUCKET_EXPORT_NAME:
             source_bucket = export['Value']
             print(f'source_bucket is: {source_bucket}')
-        if export['Name'] == DESTINATION_BUCKET_EXPORT_NAME:
+        if export['Name'] == DEFAULT_DESTINATION_BUCKET_EXPORT_NAME:
             destination_bucket = export['Value']
             print(f'destination_bucket is: {destination_bucket}')
  
