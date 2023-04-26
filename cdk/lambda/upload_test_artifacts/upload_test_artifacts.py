@@ -9,6 +9,9 @@ SOURCE_BUCKET_EXPORT_NAME = 'MultiplayerTestScalerArtifactBucketName'
 DEFAULT_DESTINATION_BUCKET_EXPORT_NAME = 'O3deMetricsUploadBucket'
 
 def handler(event, context):
+    if 'resources' not in event or type(event['resources']) is not list:
+        raise RuntimeError('List of resources not provided! No action will be taken.')
+    
     stack_id = event['resources'][0]
     new_stack_status = event['detail']['status-details']['status']
     
@@ -21,18 +24,10 @@ def handler(event, context):
  
     # get artifact and metrics bucket names
     cfn = boto3.client('cloudformation')
-    response = cfn.list_exports()
- 
-    source_bucket = ''
-    destination_bucket = ''
-    for export in response['Exports']:
-        if export['Name'] == SOURCE_BUCKET_EXPORT_NAME:
-            source_bucket = export['Value']
-            print(f'source_bucket is: {source_bucket}')
-        if export['Name'] == DEFAULT_DESTINATION_BUCKET_EXPORT_NAME:
-            destination_bucket = export['Value']
-            print(f'destination_bucket is: {destination_bucket}')
- 
+    export_dict = find_exported_buckets(cfn)
+    source_bucket = export_dict['source']
+    destination_bucket = export_dict['destination']
+    
     if "".__eq__(destination_bucket):
         raise RuntimeError('Upload destination bucket missing! No action will be taken.')
     
@@ -41,13 +36,41 @@ def handler(event, context):
  
     # upload bucket content with unique key
     s3_client = boto3.client('s3')
-    list_response = s3_client.list_objects(Bucket=source_bucket)
-    print(f'source bucket contains {len(list_response["Contents"])} objects')
-    for obj in list_response['Contents']:
-        key_name = obj['Key']
-        copy_source = {'Bucket': source_bucket, 'Key': key_name }
-        s3_client.copy(copy_source, destination_bucket, f'MpScalerArtifacts/{key_name}')
+
+    # see: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/paginator/ListObjectsV2.html
+    list_objects_paginator = s3_client.get_paginator('list_objects_v2')
+    page_iterator = list_objects_paginator.paginate(Bucket=source_bucket)
+    for page in page_iterator:
+        print(f'list of source bucket contents contains {len(page["Contents"])} objects')
+        for obj in page['Contents']:
+            key_name = obj['Key']
+            copy_source = {'Bucket': source_bucket, 'Key': key_name }
+            s3_client.copy(copy_source, destination_bucket, f'MpScalerArtifacts/{key_name}')
     
     return {
         'statusCode': 200,
     }
+    
+def find_exported_buckets(cfn_client: any) -> dict:
+    found_buckets = {
+        'source': '',
+        'destination': ''
+    }
+
+    # see: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudformation/paginator/ListExports.html
+    exports_paginator = cfn_client.get_paginator('list_exports')
+    page_iterator = exports_paginator.paginate()
+    for page in page_iterator:
+        if found_buckets['source'] != "" and found_buckets['destination'] != "":
+            break  # if we already found both buckets, stop searching
+        for export in page['Exports']:
+            if export['Name'] == SOURCE_BUCKET_EXPORT_NAME:
+                value = export['Value']
+                found_buckets['source'] = value
+                print(f'source bucket is: {value}')
+            if export['Name'] == DEFAULT_DESTINATION_BUCKET_EXPORT_NAME:
+                value = export['Value']
+                found_buckets['destination'] = value
+                print(f'destination bucket is: {value}')
+
+    return found_buckets
