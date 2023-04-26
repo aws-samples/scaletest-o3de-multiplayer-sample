@@ -9,7 +9,7 @@ SOURCE_BUCKET_EXPORT_NAME = 'MultiplayerTestScalerArtifactBucketName'
 DEFAULT_DESTINATION_BUCKET_EXPORT_NAME = 'O3deMetricsUploadBucket'
 
 def handler(event, context):
-    if 'resources' not in event or type(event['resources']) is not list:
+    if 'resources' not in event or type(event['resources']) is not list or len(event['resources']) < 1:
         raise RuntimeError('List of resources not provided! No action will be taken.')
     
     stack_id = event['resources'][0]
