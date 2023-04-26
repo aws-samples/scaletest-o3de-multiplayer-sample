@@ -14,7 +14,7 @@ def handler(event, context):
     
     print(f'Status for stack {stack_id} has changed to: {new_stack_status}')
     if new_stack_status != DELETE_STATUS:
-        print(f'Status change for stack is not {DELETE_STATUS}, NoOp.')
+        print(f'Status change for stack is not {DELETE_STATUS}, ignoring.')
         return {
             'statusCode': 200,
         }
@@ -33,8 +33,11 @@ def handler(event, context):
             destination_bucket = export['Value']
             print(f'destination_bucket is: {destination_bucket}')
  
-    if destination_bucket == '' or source_bucket == '':
-        raise RuntimeError('Required bucket missing! No action will be taken.')
+    if "".__eq__(destination_bucket):
+        raise RuntimeError('Upload destination bucket missing! No action will be taken.')
+    
+    if "".__eq__(source_bucket):
+        raise RuntimeError('Artifact source bucket missing! No action will be taken.')
  
     # upload bucket content with unique key
     s3_client = boto3.client('s3')
