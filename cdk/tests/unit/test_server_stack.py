@@ -35,7 +35,9 @@ def test_server_stack_creation_context_variable_specified_server_resources_creat
     server_stack = O3DEServerStack(
         app, f'{RESOURCE_ID_COMMON_PREFIX}Test-ServerStack',
         vpc=common_stack.vpc, security_group=common_stack.security_group,
-        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'], env=CDK_ENV)
+        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'],
+        artifacts_bucket=common_stack.artifacts_bucket,
+        env=CDK_ENV)
     template = assertions.Template.from_stack(server_stack)
 
     template.resource_count_is('AWS::EC2::SecurityGroupIngress', 2)
@@ -203,6 +205,9 @@ def test_server_stack_creation_context_variable_specified_server_resources_creat
         }
     })
 
+    template.resource_count_is('AWS::SSM::Document', 1)
+    template.resource_count_is('AWS::Events::Rule', 1)
+
 def test_server_stack_creation_no_key_pair_specified_raise_runtime_error():
     """
     Setup: Context variable key_pair is not specified and common stack is created
@@ -218,7 +223,9 @@ def test_server_stack_creation_no_key_pair_specified_raise_runtime_error():
         server_stack = O3DEServerStack(
             app, f'{RESOURCE_ID_COMMON_PREFIX}Test-ServerStack',
             vpc=common_stack.vpc, security_group=common_stack.security_group,
-            platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'], env=CDK_ENV)
+            platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'],
+            artifacts_bucket=common_stack.artifacts_bucket,
+            env=CDK_ENV)
 
     assert str(exc_info.value) == 'EC2 key pair is required for deploying the Multiplayer Test Scaler. ' \
                                   'Pass the key pair using \'-c key_pair={key_pair_value}\''
@@ -238,7 +245,9 @@ def test_server_stack_creation_no_server_private_ip_specified_use_default_server
     server_stack = O3DEServerStack(
         app, f'{RESOURCE_ID_COMMON_PREFIX}Test-ServerStack',
         vpc=common_stack.vpc, security_group=common_stack.security_group,
-        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'], env=CDK_ENV)
+        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'],
+        artifacts_bucket=common_stack.artifacts_bucket,
+        env=CDK_ENV)
     template = assertions.Template.from_stack(server_stack)
     user_data_capture = assertions.Capture()
     template.has_resource_properties('AWS::EC2::Instance', {
@@ -266,7 +275,9 @@ def test_server_stack_creation_no_local_reference_machine_cidr_specified_no_secu
     server_stack = O3DEServerStack(
         app, f'{RESOURCE_ID_COMMON_PREFIX}Test-ServerStack',
         vpc=common_stack.vpc, security_group=common_stack.security_group,
-        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'], env=CDK_ENV)
+        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'],
+        artifacts_bucket=common_stack.artifacts_bucket,
+        env=CDK_ENV)
     template = assertions.Template.from_stack(server_stack)
 
     template.resource_count_is('AWS::EC2::SecurityGroupIngress', 0)
@@ -286,7 +297,9 @@ def test_server_stack_creation_no_server_port_specified_use_default_server_port(
     server_stack = O3DEServerStack(
         app, f'{RESOURCE_ID_COMMON_PREFIX}Test-ServerStack',
         vpc=common_stack.vpc, security_group=common_stack.security_group,
-        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'], env=CDK_ENV)
+        platform=TEST_CONTEXT['platform'], project_name=TEST_CONTEXT['project_name'],
+        artifacts_bucket=common_stack.artifacts_bucket,
+        env=CDK_ENV)
     template = assertions.Template.from_stack(server_stack)
 
     template.has_resource_properties('AWS::EC2::SecurityGroupIngress', {
@@ -309,6 +322,8 @@ def test_server_stack_creation_unsupported_platform_specified_raise_runtime_erro
         server_stack = O3DEServerStack(
             app, f'{RESOURCE_ID_COMMON_PREFIX}Test-ServerStack',
             vpc=common_stack.vpc, security_group=common_stack.security_group,
-            platform='Test', project_name=TEST_CONTEXT['project_name'], env=CDK_ENV)
+            platform='Test', project_name=TEST_CONTEXT['project_name'],
+            artifacts_bucket=common_stack.artifacts_bucket,
+            env=CDK_ENV)
 
     assert str(exc_info.value) == 'Server for the Test platform is not supported yet'

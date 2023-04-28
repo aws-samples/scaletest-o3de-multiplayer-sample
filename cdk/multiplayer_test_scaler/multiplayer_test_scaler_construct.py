@@ -46,6 +46,8 @@ class MultiplayerTestScalerConstruct(Construct):
                 security_group=common_stack.security_group,
                 platform=platform,
                 project_name=id_,
+                artifacts_bucket=common_stack.artifacts_bucket,
+                upload_lambda=common_stack.upload_lambda,
                 env=env
             )
 
