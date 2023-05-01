@@ -1,7 +1,7 @@
 
 # O3DE Multiplayer Test Scaler
 
-This Python CLI tool uses the [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html) to build, package and deploy [O3DE](https://github.com/o3de/o3de) multiplayer projects. It can be used to demonstrate O3DE multiplayer functionalities at scale (for example: 25 clients connecting to a server at stable FPS) and to create repeatable, large-scale tests.
+This Python CLI tool uses the [AWS Cloud Development Kit (CDK)](https://docs.aws.amazon.com/cdk/v2/guide/home.html) to build, package and deploy [O3DE](https://github.com/o3de/o3de) multiplayer projects. It can be used to demonstrate O3DE multiplayer functionalities at scale (for example: 25 clients connecting to a server at stable FPS) and to create repeatable, large-scale tests.
 
 It currently supports Windows clients and servers, but may be extended in the future to support additional platforms.
 
@@ -20,7 +20,7 @@ When fully deployed, you will have a single game server running in Amazon EC2, w
 You will need:
 * An AWS account for deploying the required AWS resources
 * An [EC2 Key pair](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/create-key-pairs.html) created in the AWS account and region in which you want to deploy
-* The [AWS CLI](https://aws.amazon.com/cli/) installed and configured with valid AWS credentials. You will need near Admin-level permissions to deploy all the resources defined in this project.
+* The [AWS CLI](https://aws.amazon.com/cli/) installed and configured with valid AWS credentials. You will need full access permissions to multiple services in order to deploy all the resources defined in this project. See the _[Configuring permissions](#configuring-permissions)_ section for more details.
 * [Docker](https://docs.docker.com/desktop/windows/install/) installed and running in _Windows containers_ mode
 * Python3 installed
 * The [AWS CDK v2](https://docs.aws.amazon.com/cdk/v2/guide/home.html) installed and configured
@@ -112,6 +112,8 @@ When deployed, Multiplayer Test Scaler uses two Amazon S3 buckets to store logs 
     * To create an S3 bucket with AWS Cloudformation and export its stack output, see the [AWS CloudFormation documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-exports.html).
     * To use an existing exported S3 bucket in your account, modify the value of the `DEFAULT_DESTINATION_BUCKET_EXPORT_NAME` constant in [multiplayer_test_scaler/constants.py](cdk/multiplayer_test_scaler/constants.py) and [upload_test_artifacts.py](cdk/lambda/upload_test_artifacts/upload_test_artifacts.py).
 
+It's recommended that any S3 bucket you use or create for use with this tool adhere to documented best practices, including the use of HTTPS to encrypt data in transit and a minimally-scoped bucket policy to limit access. See the [security best practices for Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html) documentation for more details.
+
 ### Deploy the remote server and clients
 Run `python main.py deploy --target [target_name] --config-file [config_file_name] --platform [platform_name]` to set up:
 * A VPC and security group for the remote server and clients to be deployed into
@@ -149,3 +151,21 @@ This project contains unit tests for both the python CLI tool and the included A
 1. If not already activated, activate the project's virtualenv by running `.venv\Scripts\activate.bat` in the root of the project
 1. From within the root (for CLI tests) or `cdk` (for CDK application tests) directories, run `pip install -r requirements-dev.txt` to install the required test dependencies
 1. From within the same directory, run the tests by executing `python -m pytest tests\unit`
+
+## Configuring permissions
+
+Full deployment of the AWS CDK app included with this tool requires that the calling AWS identity have permissions to create, modify, and destroy resources in the following services:
+ - AWS CloudFormation
+ - Amazon S3
+ - Amazon Virtual Private Cloud (VPC)
+ - Amazon EC2
+ - EC2 Image Builder
+ - Amazon Elastic Container Registry (ECR)
+ - Amazon Elastic Container Service (ECS)
+ - AWS Lambda
+ - AWS Systems Manager
+ - Amazon CloudWatch
+
+For more information about how to authenticate while using the AWS CDK, see the official [documentation](https://docs.aws.amazon.com/cdk/v2/guide/security-iam.html).
+
+
